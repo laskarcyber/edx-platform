@@ -38,6 +38,14 @@ class ContainerBase(UniqueCourseTest):
         self.group_b_item_1 = "Group B Item 1"
         self.group_b_item_2 = "Group B Item 2"
 
+        self.group_a_handle = 0
+        self.group_a_item_1_handle = 1
+        self.group_a_item_2_handle = 2
+        self.group_empty_handle = 3
+        self.group_b_handle = 4
+        self.group_b_item_1_handle = 5
+        self.group_b_item_2_handle = 6
+
         self.setup_fixtures()
 
         self.auth_page.visit()
@@ -101,9 +109,15 @@ class DragAndDropTest(ContainerBase):
                         self.assertEqual(expected, children[idx].name)
                     break
 
+    def drag_up_one_and_verify(self, source, expected_ordering):
+        self.drag_and_verify(source, source, expected_ordering)
+
     def drag_and_verify(self, source, target, expected_ordering, after=True):
         container = self.go_to_container_page(make_draft=True)
-        container.drag(source, target, after)
+        if source == target:
+            container.drag_up_one(source)
+        else:
+            container.drag(source, target, after)
 
         self.verify_ordering(container, expected_ordering)
 
@@ -119,7 +133,7 @@ class DragAndDropTest(ContainerBase):
                              {self.group_a: [self.group_a_item_1, self.group_a_item_2]},
                              {self.group_b: [self.group_b_item_2, self.group_b_item_1]},
                              {self.group_empty: []}]
-        self.drag_and_verify(6, 4, expected_ordering)
+        self.drag_up_one_and_verify(self.group_b_item_2_handle, expected_ordering)
 
     def test_drag_to_top(self):
         """
@@ -129,27 +143,27 @@ class DragAndDropTest(ContainerBase):
                              {self.group_a: [self.group_a_item_2]},
                              {self.group_b: [self.group_b_item_1, self.group_b_item_2]},
                              {self.group_empty: []}]
-        self.drag_and_verify(1, 0, expected_ordering, False)
+        self.drag_and_verify(self.group_a_item_1_handle, self.group_a_handle, expected_ordering, False)
 
     def test_drag_into_different_group(self):
         """
-        Drag Group A Item 1 into Group B (last element).
+        Drag Group A Item 1 into Group B (first element).
         """
         expected_ordering = [{self.container_title: [self.group_a, self.group_empty, self.group_b]},
                              {self.group_a: [self.group_a_item_2]},
-                             {self.group_b: [self.group_b_item_1, self.group_b_item_2, self.group_a_item_1]},
+                             {self.group_b: [self.group_a_item_1, self.group_b_item_1, self.group_b_item_2]},
                              {self.group_empty: []}]
-        self.drag_and_verify(1, 6, expected_ordering)
+        self.drag_and_verify(self.group_a_item_1_handle, self.group_b_handle, expected_ordering)
 
     def test_drag_group_into_group(self):
         """
-        Drag Group B into Group A (last element).
+        Drag Group B into Group A (first element).
         """
         expected_ordering = [{self.container_title: [self.group_a, self.group_empty]},
-                             {self.group_a: [self.group_a_item_1, self.group_a_item_2, self.group_b]},
+                             {self.group_a: [self.group_b, self.group_a_item_1, self.group_a_item_2]},
                              {self.group_b: [self.group_b_item_1, self.group_b_item_2]},
                              {self.group_empty: []}]
-        self.drag_and_verify(4, 2, expected_ordering)
+        self.drag_and_verify(self.group_b_handle, self.group_a_item_1_handle, expected_ordering)
 
     # Not able to drag into the empty group with automation (difficult even outside of automation).
     # def test_drag_into_empty(self):

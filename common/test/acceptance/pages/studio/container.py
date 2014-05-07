@@ -8,6 +8,7 @@ from . import BASE_URL
 
 from selenium.webdriver.common.action_chains import ActionChains
 
+
 class ContainerPage(PageObject):
     """
     Container page in Studio
@@ -57,11 +58,19 @@ class ContainerPage(PageObject):
         source = draggables[source_index]
         target = draggables[target_index]
         action = ActionChains(self.browser)
-        action.click_and_hold(source).perform()  # pylint: disable=protected-access
-        action.move_to_element_with_offset(
+        action.click_and_hold(source).move_to_element_with_offset(
             target, 0, target.size['height'] / 2 if after else 0
-        ).perform()  # pylint: disable=protected-access
-        action.release().perform()
+        ).release().perform()
+
+    def drag_up_one(self, source_index):
+        """
+        Gets the drag handle with index source_index (relative to the vertical layout of the page)
+        and drags it up one element.
+        """
+        draggables = self.q(css='.drag-handle')
+        source = draggables[source_index]
+        action = ActionChains(self.browser)
+        action.click_and_hold(source).move_by_offset(0, -source.size['height']/2).release().perform()
 
 
 class XBlockWrapper(PageObject):
