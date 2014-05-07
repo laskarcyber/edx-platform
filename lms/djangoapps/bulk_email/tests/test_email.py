@@ -97,12 +97,13 @@ class TestEmailSendFromDashboard(ModuleStoreTestCase):
         """
         test_email = {
             'action': 'Send email',
-            'to_option': 'myself',
+            'send_to': 'myself',
             'subject': 'test subject for myself',
             'message': 'test message for myself'
         }
-        response = self.client.post(self.url, test_email)
-        self.assertContains(response, "Email is not enabled for this course.")
+        response = self.client.post(self.send_mail_url, test_email)
+        # We should get back a HttpResponseForbidden (status code 403)
+        self.assertContains(response, "Email is not enabled for this course.", status_code=403)
 
     def test_send_to_self(self):
         """
