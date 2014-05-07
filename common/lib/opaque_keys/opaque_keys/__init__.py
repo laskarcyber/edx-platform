@@ -62,7 +62,7 @@ class OpaqueKey(object):
 
     OpaqueKeys will not have optional constructor parameters (due to the implementation of
     KEY_FIELDS), by default. However, and implementation class can provide a default,
-    os long as it passes that default to a call to super().__init__.
+    as long as it passes that default to a call to super().__init__.
 
     OpaqueKeys are immutable.
     """
