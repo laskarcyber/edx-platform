@@ -1,7 +1,7 @@
 define(["jquery", "js/views/baseview"],
     function ($, BaseView) {
 
-        var NewComponentMenu = BaseView.extend({
+        return BaseView.extend({
             className: function () {
                 return "new-component-templates new-component-" + this.model.type;
             },
@@ -16,5 +16,4 @@ define(["jquery", "js/views/baseview"],
             }
         });
 
-        return NewComponentMenu;
     }); // end define();

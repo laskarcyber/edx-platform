@@ -8,7 +8,7 @@ define(["backbone"], function (Backbone) {
             // Each entry in the template array is an Object with the following keys:
             // display_name
             // category (may or may not match "type")
-            // boilerplate_name (may be None)
+            // boilerplate_name (may be null)
             // is_common (only used for problems)
             templates: []
         },

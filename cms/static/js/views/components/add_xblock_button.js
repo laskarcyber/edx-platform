@@ -1,7 +1,7 @@
 define(["js/views/baseview"],
     function (BaseView) {
 
-        var NewComponentButton = BaseView.extend({
+        return BaseView.extend({
             tagName: "li",
             initialize: function () {
                 BaseView.prototype.initialize.call(this);
@@ -10,5 +10,4 @@ define(["js/views/baseview"],
             }
         });
 
-        return NewComponentButton;
     }); // end define();

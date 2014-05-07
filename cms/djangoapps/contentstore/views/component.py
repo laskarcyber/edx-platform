@@ -277,6 +277,17 @@ def _get_component_templates(course):
     """
     Returns the applicable component templates that can be used by the specified course.
     """
+    def create_template_dict(name, cat, boilerplate_name=None, is_common=False):
+        """
+        Creates a component template dict.
+        """
+        return {
+            "display_name": name,
+            "category": cat,
+            "is_common": is_common,
+            "boilerplate_name": boilerplate_name
+        }
+
     component_templates = []
     # The component_templates array is in the order of "advanced" (if present), followed
     # by the components in the order listed in COMPONENT_TYPES.
@@ -290,23 +301,21 @@ def _get_component_templates(course):
             display_name = component_class.display_name.default or 'Blank'
         else:
             display_name = 'Blank'
-        templates_for_category.append({
-            "display_name": display_name,
-            "category": category,
-            "is_common": False,  # No defaults have markdown (hardcoded current default)
-            "boilerplate_name": None  # no boilerplate for overrides
-        })
+        templates_for_category.append(create_template_dict(display_name, category))
+
         # add boilerplates
         if hasattr(component_class, 'templates'):
             for template in component_class.templates():
                 filter_templates = getattr(component_class, 'filter_templates', None)
                 if not filter_templates or filter_templates(template, course):
-                    templates_for_category.append({
-                        "display_name": template['metadata'].get('display_name'),
-                        "category": category,
-                        "is_common": template['metadata'].get('markdown') is not None,
-                        "boilerplate_name": template.get('template_id')
-                    })
+                    templates_for_category.append(
+                        create_template_dict(
+                            template['metadata'].get('display_name'),
+                            category,
+                            template.get('template_id'),
+                            template['metadata'].get('markdown') is not None
+                        )
+                    )
         component_templates.append({"type": category, "templates": templates_for_category})
 
     # Check if there are any advanced modules specified in the course policy.
@@ -314,25 +323,20 @@ def _get_component_templates(course):
     # are the names of the modules in ADVANCED_COMPONENT_TYPES that should be
     # enabled for the course.
     course_advanced_keys = course.advanced_modules
-
     advanced_component_templates = {"type": "advanced", "templates": []}
     # Set component types according to course policy file
     if isinstance(course_advanced_keys, list):
         for category in course_advanced_keys:
             if category in ADVANCED_COMPONENT_TYPES:
-                # Do I need to allow for boilerplates or just defaults on the
-                # class? i.e., can an advanced have more than one entry in the
-                # menu? one for default and others for prefilled boilerplates?
+                # boilerplates not supported for advanced components
                 try:
                     component_class = _load_mixed_class(category)
 
                     advanced_component_templates['templates'].append(
-                        {
-                            "display_name": component_class.display_name.default or category,
-                            "category": category,
-                            "is_common": False,
-                            "boilerplate_name": None  # don't override default data
-                        }
+                        create_template_dict(
+                            component_class.display_name.default or category,
+                            category
+                        )
                     )
                 except PluginMissingError:
                     # dhm: I got this once but it can happen any time the
